@@ -1,0 +1,11 @@
+:root {
+    --my-primary: #459eb9;
+}
+
+.bg-color {
+    background-color: var(--my-primary);
+}
+
+.text-color {
+    color: var(--my-primary);
+}

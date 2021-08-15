@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+
+    <!-- Chart.js import -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.0/chart.min.js" integrity="sha512-asxKqQghC1oBShyhiBwA+YgotaSYKxGP1rcSYTDrB0U6DxwlJjU59B67U8+5/++uFjcuVM8Hh5cokLjZlhm3Vg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <link rel="stylesheet" href="./css/main.css">
+
+    <title>Weather App || Graph</title>
+
+  </head>
+  <body>
+
+    <main>
+        <div class="container">
+            <h1 class="my-5">Weather App</h1>
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                  <a class="nav-link text-color" href="index.html">Weather condition</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link active red" aria-current="page" href="graphs.html">Graphs</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link text-color"  href="calculator.html">Heat index calculator</a>
+                </li>
+            </ul>
+
+            <h3 class="fw-bold text-dark my-5">Display weather conditions in line chart</h3>
+            <div class="row my-5">
+               <canvas id="myChart" class="shadow-sm bg-light"></canvas>
+            </div>
+        </div>
+    </main>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS --> 
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-eMNCOe7tC1doHpGoWe/6oMVemdAVTMs2xqW4mwXrXsW0L84Iytr2wi5v2QjrP/xp" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.min.js" integrity="sha384-cn7l7gDp0eyniUwwAZgrzD06kc/tftFf19TOAs2zVinnD/C7E91j9yyk5//jjpt/" crossorigin="anonymous"></script>
+
+    <!-- Script -->
+    <script>
+      chartUp();
+       
+      // Create chart
+       async function chartUp() {
+        const data = await getConditions();
+
+        const ctx = document.getElementById('myChart');
+
+        Chart.defaults.font.size = "16"
+
+        const myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+            labels: data.xlabels,
+            datasets: [{
+                label: "Temperature in Celsius",
+                data: data.ytemp,
+                backgroundColor: "#fff",
+                borderColor: "#459eb9",
+                borderWidth: 2
+            }],
+        },
+        options: {
+            scales: {
+              y: {
+                    ticks: {
+                        callback: function(value, index, values) {
+                        return value + " °";
+                      }
+                    },
+                    beginAtZero: true
+            }
+          },
+            plugins: {
+              title: {
+                display: true,
+                text: "Temperature progress in 24 hours",
+                align: "center",
+                color: "#1f1f1f"
+              }
+          },
+          layout: {
+            padding: {
+              top: 25,
+              bottom: 25
+            }
+          }
+        }
+    }); 
+};
+
+  // Fetch data
+  async function getConditions() {
+      const xlabels = [];
+      const ytemp = [];
+
+      const res = await fetch("https://meta-weather.now.sh/api/location/44418/2018/4/30/");
+      const data = await res.json();
+       
+      console.log(data);
+
+      exactDay = data.slice(0, 7).reverse();
+
+      exactDay.forEach(item => {
+          const {created, the_temp} = item;
+
+          const weatherDate = new Date(created);
+          const month = weatherDate.getMonth() + 1;
+          const date = weatherDate.getDate();
+          const year = weatherDate.getFullYear();
+          const hours = weatherDate.getHours();
+          const minutes = weatherDate.getMinutes();
+
+          let styledDate = `${date}/${month}/${year} ${hours}:${minutes}`;   
+            
+          xlabels.push(styledDate);
+          ytemp.push(the_temp);
+      });
+
+      return {xlabels, ytemp};
+    };
+
+    </script>
+  </body>
+</html>
